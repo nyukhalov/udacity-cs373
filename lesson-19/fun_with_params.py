@@ -591,9 +591,9 @@ d_gain            = 6.0
 #           weight_data, weight_smooth, p_gain, d_gain)
 
 
-def twiddle(grid, init, goal, steering_noise, distance_noise, measurement_noise, tolerance = 0.001):
+def twiddle(grid, init, goal, steering_noise, distance_noise, measurement_noise, tolerance = 0.00001):
                
-    p = [0, 0, 0, 0]
+    p = [0.1, 0.1, 1, 1]
     dp = [1, 1, 1, 1]
     
     K = 5
@@ -602,7 +602,7 @@ def twiddle(grid, init, goal, steering_noise, distance_noise, measurement_noise,
     for _ in range(K):
         res = main(grid, init, goal, steering_noise, distance_noise, measurement_noise, p[0], p[1], p[2], p[3])
         if res[0]:
-            best_err += res[1] * 1000 + (res[2] / 10.0)
+            best_err += res[1] * 100 + res[2]
         else:
             best_err += 99999
     best_err /= float(K)
@@ -616,7 +616,7 @@ def twiddle(grid, init, goal, steering_noise, distance_noise, measurement_noise,
             for _ in range(K):
                 res = main(grid, init, goal, steering_noise, distance_noise, measurement_noise, p[0], p[1], p[2], p[3])
                 if res[0]:
-                    err += res[1] * 1000 + (res[2] / 10.0)
+                    err += res[1] * 100 + res[2]
                 else:
                     err += 99999                    
             err /= float(K)
@@ -629,7 +629,7 @@ def twiddle(grid, init, goal, steering_noise, distance_noise, measurement_noise,
                 for _ in range(K):
                     res = main(grid, init, goal, steering_noise, distance_noise, measurement_noise, p[0], p[1], p[2], p[3])
                     if res[0]:
-                        err += res[1] * 1000 + (res[2] / 10.0)
+                        err += res[1] * 100 + res[2]
                     else:
                         err += 99999
                 err /= float(K)
