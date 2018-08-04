@@ -60,18 +60,38 @@ from math import *
 from matrix import *
 import random
 
-H = matrix([[1, 0, 0, 0, 0], 
-            [0, 1, 0, 0, 0]]) # measurement function
-R = matrix([[1., 0.], 
-            [0., 1.]]) # measuremnt uncertanty
+# State
+# x  - x coordinate 
+# y  - y coordinate
+# vx - x velocity
+# vy - y velocity
+# ax - x acceleration
+# ay - y acceleration
+
+sigma = 1.
+dt = 1.
+
+# measurement function
+H = matrix([[1, 0, 0, 0, 0, 0], 
+            [0, 1, 0, 0, 0, 0]]) 
+
+# measurement uncertanty
+R = matrix([[sigma, 0.], 
+            [0., sigma]]) 
+
+# identity matrix
 I = matrix([[]])
-I.identity(5) # identity matrix
-F = matrix([[1, 0, 0, 0, 0], 
-            [0, 1, 0, 0, 0], 
-            [0, 0, 1, 1, 0], 
-            [0, 0, 0, 1, 0], 
-            [0, 0, 0, 0, 1]]) # next state funciton
-u = matrix([[0.], [0.], [0.], [0.], [0.]]) # external motion
+I.identity(6) 
+
+# next state funciton
+F = matrix([[1, 0, dt, 0,  dt*dt/2., 0],
+            [0, 1, 0,  dt, 0,        dt*dt/2],
+            [0, 0, 1,  0,  dt,       0],
+            [0, 0, 0,  1,  0,        dt],
+            [0, 0, 0,  0,  1,        0],
+            [0, 0, 0,  0,  0,        1]])
+
+u = matrix([[0.], [0.], [0.], [0.], [0.], [0.]]) # external motion
 
 def update(x, P, m):
     z = matrix([[m[0]], [m[1]]])
@@ -83,11 +103,6 @@ def update(x, P, m):
     return [nx, nP]
  
 def predict(x, P):
-    h = x.value[2][0]
-    t = x.value[3][0]
-    heading = angle_trunc(h + t)
-    F.value[0][4] = cos(heading)
-    F.value[1][4] = sin(heading)
     nx = (F * x) + u
     nP = F * P * F.transpose()
     return [nx, nP]
@@ -103,32 +118,32 @@ def estimate_next_pos(measurement, OTHER = None):
     based on noisy (x, y) measurements."""
 
     if OTHER is None:
-        x = matrix([[0.], [0.], [0.], [0.], [0.]])
-        # x = matrix([[2.1], [4.3], [0.5], [2*pi / 34.0], [1.5]])
-        P = matrix([[1000, 0, 0, 0, 0], 
-                    [0, 1000, 0, 0, 0], 
-                    [0, 0, 1000, 0, 0], 
-                    [0, 0, 0, 1000, 0], 
-                    [0, 0, 0, 0, 1000]])
+        pd = 1000
+        x = matrix([[0.], [0.], [0.], [0.], [0.], [0.]])
+        P = matrix([[pd, 0, 0, 0, 0, 0], 
+                    [0, pd, 0, 0, 0, 0], 
+                    [0, 0, pd, 0, 0, 0], 
+                    [0, 0, 0, pd, 0, 0], 
+                    [0, 0, 0, 0, pd, 0],
+                    [0, 0, 0, 0, 0, pd]])
     else:
         [x, P] = OTHER
 
     
-    print '=== P'
-    P.show()
+    #print '=== P'
+    #P.show()
 
-    #print 'Prediction  = ', [x.value[0][0], x.value[1][0]]
-    print 'Measurement = ', measurement
+    #print 'Measurement = ', measurement
 
-    print 'State (before update) = ', x
+    #print 'State (before update) = ', x
     [x, P] = update(x, P, measurement)
-    print 'State (after update)  = ', x
+    #print 'State (after update)  = ', x
     [x, P] = predict(x, P)
-    print 'State (after predict) = ', x
+    #print 'State (after predict) = ', x
     xy_estimate = [x.value[0][0], x.value[1][0]]
     OTHER = [x, P]
 
-    print ' '
+    #print ' '
 
     # You must return xy_estimate (x, y), and OTHER (even if it is None) 
     # in this order for grading purposes.
@@ -195,8 +210,11 @@ def demo_grading2(estimate_next_pos_fcn, target_bot, OTHER = None):
     prediction.penup()
     broken_robot.penup()
     measured_broken_robot.penup()
+
+    steps = 300
+
     #End of Visualization
-    while not localized and ctr <= 50:
+    while not localized and ctr <= steps:
         ctr += 1
         measurement = target_bot.sense()
         position_guess, OTHER = estimate_next_pos_fcn(measurement, OTHER)
@@ -206,7 +224,7 @@ def demo_grading2(estimate_next_pos_fcn, target_bot, OTHER = None):
         if error <= distance_tolerance:
             print "You got it right! It took you ", ctr, " steps to localize."
             localized = True
-        if ctr == 50:
+        if ctr == steps:
             print "Sorry, it took you too many steps to localize the target."
         #More Visualization
         measured_broken_robot.setheading(target_bot.heading*180/pi)
