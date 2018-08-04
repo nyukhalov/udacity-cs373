@@ -60,11 +60,17 @@ from math import *
 from matrix import *
 import random
 
-H = matrix([[1, 0, 0, 0, 0], [0, 1, 0, 0, 0]]) # measurement function
-R = matrix([[1., 0.], [0., 1.]]) # measuremnt uncertanty
+H = matrix([[1, 0, 0, 0, 0], 
+            [0, 1, 0, 0, 0]]) # measurement function
+R = matrix([[1., 0.], 
+            [0., 1.]]) # measuremnt uncertanty
 I = matrix([[]])
 I.identity(5) # identity matrix
-F = matrix([[1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 1, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]]) # next state funciton
+F = matrix([[1, 0, 0, 0, 0], 
+            [0, 1, 0, 0, 0], 
+            [0, 0, 1, 1, 0], 
+            [0, 0, 0, 1, 0], 
+            [0, 0, 0, 0, 1]]) # next state funciton
 u = matrix([[0.], [0.], [0.], [0.], [0.]]) # external motion
 
 def update(x, P, m):
@@ -99,7 +105,11 @@ def estimate_next_pos(measurement, OTHER = None):
     if OTHER is None:
         x = matrix([[0.], [0.], [0.], [0.], [0.]])
         # x = matrix([[2.1], [4.3], [0.5], [2*pi / 34.0], [1.5]])
-        P = matrix([[1000, 0, 0, 0, 0], [0, 1000, 0, 0, 0], [0, 0, 1000, 0, 0], [0, 0, 0, 1000, 0], [0, 0, 0, 0, 1000]])
+        P = matrix([[1000, 0, 0, 0, 0], 
+                    [0, 1000, 0, 0, 0], 
+                    [0, 0, 1000, 0, 0], 
+                    [0, 0, 0, 1000, 0], 
+                    [0, 0, 0, 0, 1000]])
     else:
         [x, P] = OTHER
 
